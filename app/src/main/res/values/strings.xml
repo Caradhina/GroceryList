@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Grocery List</string>
+
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="mark_as_completed">Mark as done</string>
+</resources>
