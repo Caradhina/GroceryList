@@ -14,7 +14,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import com.example.zolboo.grocerylist.DTO.ToDo
+import com.example.zolboo.grocerylist.DTO.Grocery
 import kotlinx.android.synthetic.main.activity_dashboard.*
 
 class DashboardActivity : AppCompatActivity() {
@@ -33,13 +33,13 @@ class DashboardActivity : AppCompatActivity() {
             val dialog = AlertDialog.Builder(this)
             dialog.setTitle("Add Grocery")
             val view = layoutInflater.inflate(R.layout.dialog_dashboard, null)
-            val toDoName = view.findViewById<EditText>(R.id.ev_todo)
+            val groceryName = view.findViewById<EditText>(R.id.ev_grocery)
             dialog.setView(view)
             dialog.setPositiveButton("Add") { _: DialogInterface, _: Int ->
-                if (toDoName.text.isNotEmpty()) {
-                    val toDo = ToDo()
-                    toDo.name = toDoName.text.toString()
-                    dbHandler.addToDo(toDo)
+                if (groceryName.text.isNotEmpty()) {
+                    val grocery = Grocery()
+                    grocery.name = groceryName.text.toString()
+                    dbHandler.addGrocery(grocery)
                     refreshList()
                 }
             }
@@ -51,17 +51,17 @@ class DashboardActivity : AppCompatActivity() {
 
     }
 
-    fun updateToDo(toDo: ToDo){
+    fun updateGrocery(grocery: Grocery){
         val dialog = AlertDialog.Builder(this)
         dialog.setTitle("Update Grocery")
         val view = layoutInflater.inflate(R.layout.dialog_dashboard, null)
-        val toDoName = view.findViewById<EditText>(R.id.ev_todo)
-        toDoName.setText(toDo.name)
+        val groceryName = view.findViewById<EditText>(R.id.ev_grocery)
+        groceryName.setText(grocery.name)
         dialog.setView(view)
         dialog.setPositiveButton("Update") { _: DialogInterface, _: Int ->
-            if (toDoName.text.isNotEmpty()) {
-                toDo.name = toDoName.text.toString()
-                dbHandler.updateToDo(toDo)
+            if (groceryName.text.isNotEmpty()) {
+                grocery.name = groceryName.text.toString()
+                dbHandler.updateGrocery(grocery)
                 refreshList()
             }
         }
@@ -79,12 +79,12 @@ class DashboardActivity : AppCompatActivity() {
     private fun refreshList(){
         rv_dashboard.adapter = DashboardAdapter(
             this,
-            dbHandler.getToDos()
+            dbHandler.getGrocery()
         )
     }
 
 
-    class DashboardAdapter(val activity: DashboardActivity, val list: MutableList<ToDo>) :
+    class DashboardAdapter(val activity: DashboardActivity, val list: MutableList<Grocery>) :
         RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
             return ViewHolder(
@@ -101,9 +101,9 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, p1: Int) {
-            holder.toDoName.text = list[p1].name
+            holder.groceryName.text = list[p1].name
 
-            holder.toDoName.setOnClickListener {
+            holder.groceryName.setOnClickListener {
                 val intent = Intent(activity, ItemActivity::class.java)
                 intent.putExtra(INTENT_GROCERY_ID,list[p1].id)
                 intent.putExtra(INTENT_GROCERY_NAME,list[p1].name)
@@ -117,14 +117,14 @@ class DashboardActivity : AppCompatActivity() {
 
                     when(it.itemId){
                         R.id.menu_edit ->{
-                            activity.updateToDo(list[p1])
+                            activity.updateGrocery(list[p1])
                         }
                         R.id.menu_delete ->{
                             val dialog = AlertDialog.Builder(activity)
                             dialog.setTitle("Are you sure")
                             dialog.setMessage("Do you want to delete this grocery ?")
                             dialog.setPositiveButton("Continue") { _: DialogInterface, _: Int ->
-                                activity.dbHandler.deleteToDo(list[p1].id)
+                                activity.dbHandler.deleteGrocery(list[p1].id)
                                 activity.refreshList()
                             }
                             dialog.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->
@@ -133,7 +133,7 @@ class DashboardActivity : AppCompatActivity() {
                             dialog.show()
                         }
                         R.id.menu_mark_as_completed ->{
-                            activity.dbHandler.updateToDoItemCompletedStatus(list[p1].id,true)
+                            activity.dbHandler.updateGroceryItemCompletedStatus(list[p1].id,true)
                         }
                     }
 
@@ -144,7 +144,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-            val toDoName: TextView = v.findViewById(R.id.tv_todo_name)
+            val groceryName: TextView = v.findViewById(R.id.tv_grocery_name)
             val menu : ImageView = v.findViewById(R.id.iv_menu)
         }
     }

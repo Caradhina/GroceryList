@@ -13,13 +13,13 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
-import com.example.zolboo.grocerylist.DTO.ToDoItem
+import com.example.zolboo.grocerylist.DTO.GroceryItem
 import kotlinx.android.synthetic.main.activity_item.*
 
 class ItemActivity : AppCompatActivity() {
 
     lateinit var dbHandler: DBHandler
-    var todoId: Long = -1
+    var groceryId: Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +28,7 @@ class ItemActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.title = intent.getStringExtra(INTENT_GROCERY_NAME)
-        todoId = intent.getLongExtra(INTENT_GROCERY_ID, -1)
+        groceryId = intent.getLongExtra(INTENT_GROCERY_ID, -1)
         dbHandler = DBHandler(this)
 
         rv_item.layoutManager = LinearLayoutManager(this)
@@ -37,15 +37,15 @@ class ItemActivity : AppCompatActivity() {
             val dialog = AlertDialog.Builder(this)
             dialog.setTitle("Add Grocery Notes")
             val view = layoutInflater.inflate(R.layout.dialog_dashboard, null)
-            val toDoName = view.findViewById<EditText>(R.id.ev_todo)
+            val groceryName = view.findViewById<EditText>(R.id.ev_grocery)
             dialog.setView(view)
             dialog.setPositiveButton("Add") { _: DialogInterface, _: Int ->
-                if (toDoName.text.isNotEmpty()) {
-                    val item = ToDoItem()
-                    item.itemName = toDoName.text.toString()
-                    item.toDoId = todoId
+                if (groceryName.text.isNotEmpty()) {
+                    val item = GroceryItem()
+                    item.itemName = groceryName.text.toString()
+                    item.groceryId = groceryId
                     item.isCompleted = false
-                    dbHandler.addToDoItem(item)
+                    dbHandler.addGroceryItem(item)
                     refreshList()
                 }
             }
@@ -57,19 +57,19 @@ class ItemActivity : AppCompatActivity() {
 
     }
 
-    fun updateItem(item : ToDoItem){
+    fun updateItem(item : GroceryItem){
         val dialog = AlertDialog.Builder(this)
         dialog.setTitle("Update Grocery Note")
         val view = layoutInflater.inflate(R.layout.dialog_dashboard, null)
-        val toDoName = view.findViewById<EditText>(R.id.ev_todo)
-        toDoName.setText(item.itemName)
+        val groceryName = view.findViewById<EditText>(R.id.ev_grocery)
+        groceryName.setText(item.itemName)
         dialog.setView(view)
         dialog.setPositiveButton("Update") { _: DialogInterface, _: Int ->
-            if (toDoName.text.isNotEmpty()) {
-                item.itemName = toDoName.text.toString()
-                item.toDoId = todoId
+            if (groceryName.text.isNotEmpty()) {
+                item.itemName = groceryName.text.toString()
+                item.groceryId = groceryId
                 item.isCompleted = false
-                dbHandler.updateToDoItem(item)
+                dbHandler.updateGroceryItem(item)
                 refreshList()
             }
         }
@@ -87,11 +87,11 @@ class ItemActivity : AppCompatActivity() {
     private fun refreshList() {
         rv_item.adapter = ItemAdapter(
             this,
-            dbHandler.getToDoItems(todoId)
+            dbHandler.getGroceryItems(groceryId)
         )
     }
 
-    class ItemAdapter(val activity: ItemActivity, val list: MutableList<ToDoItem>) :
+    class ItemAdapter(val activity: ItemActivity, val list: MutableList<GroceryItem>) :
         RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
             return ViewHolder(
@@ -110,14 +110,14 @@ class ItemActivity : AppCompatActivity() {
             holder.itemName.isChecked = list[p1].isCompleted
             holder.itemName.setOnClickListener {
                 list[p1].isCompleted = !list[p1].isCompleted
-                activity.dbHandler.updateToDoItem(list[p1])
+                activity.dbHandler.updateGroceryItem(list[p1])
             }
             holder.delete.setOnClickListener {
                 val dialog = AlertDialog.Builder(activity)
                 dialog.setTitle("Are you sure")
                 dialog.setMessage("Do you want to delete this note ?")
                 dialog.setPositiveButton("Continue") { _: DialogInterface, _: Int ->
-                    activity.dbHandler.deleteToDoItem(list[p1].id)
+                    activity.dbHandler.deleteGroceryItem(list[p1].id)
                     activity.refreshList()
                 }
                 dialog.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->

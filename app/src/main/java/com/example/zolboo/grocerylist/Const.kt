@@ -11,11 +11,9 @@ const val COL_NAME = "name"
 
 
 const val TABLE_GROCERY_ITEM = "GroceryItem"
-const val COL_TODO_ID = "toDoId"
+const val COL_GROCERY_ID = "groceryId"
 const val COL_ITEM_NAME = "itemName"
 const val COL_IS_COMPLETED = "isCompleted"
-
-
 
 
 const val INTENT_GROCERY_ID = "GroceryId"

@@ -1,9 +1,9 @@
 package com.example.zolboo.grocerylist.DTO
 
-class ToDoItem(){
+class GroceryItem(){
 
     var id : Long = -1
-    var toDoId : Long = -1
+    var groceryId : Long = -1
     var itemName = ""
     var isCompleted = false
 

@@ -6,8 +6,9 @@
         android:padding="16dp">
 
     <EditText
-            android:id="@+id/ev_todo"
+            android:id="@+id/ev_grocery"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no" />
 
 </RelativeLayout>

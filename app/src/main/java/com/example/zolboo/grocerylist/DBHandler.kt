@@ -4,128 +4,128 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.example.zolboo.grocerylist.DTO.ToDo
-import com.example.zolboo.grocerylist.DTO.ToDoItem
+import com.example.zolboo.grocerylist.DTO.Grocery
+import com.example.zolboo.grocerylist.DTO.GroceryItem
 
 class DBHandler(val context: Context) : SQLiteOpenHelper(context,
     DB_NAME, null,
     DB_VERSION
 ) {
     override fun onCreate(db: SQLiteDatabase) {
-        val createToDoTable = "  CREATE TABLE $TABLE_GROCERY (" +
+        val createGroceryTable = "  CREATE TABLE $TABLE_GROCERY (" +
                 "$COL_ID integer PRIMARY KEY AUTOINCREMENT," +
                 "$COL_CREATED_AT datetime DEFAULT CURRENT_TIMESTAMP," +
                 "$COL_NAME varchar);"
-        val createToDoItemTable =
+        val createCroceryItemTable =
             "CREATE TABLE $TABLE_GROCERY_ITEM (" +
                     "$COL_ID integer PRIMARY KEY AUTOINCREMENT," +
                     "$COL_CREATED_AT datetime DEFAULT CURRENT_TIMESTAMP," +
-                    "$COL_TODO_ID integer," +
+                    "$COL_GROCERY_ID integer," +
                     "$COL_ITEM_NAME varchar," +
                     "$COL_IS_COMPLETED integer);"
 
-        db.execSQL(createToDoTable)
-        db.execSQL(createToDoItemTable)
+        db.execSQL(createGroceryTable)
+        db.execSQL(createCroceryItemTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
     }
 
 
-    fun addToDo(toDo: ToDo): Boolean {
+    fun addGrocery(grocery: Grocery): Boolean {
         val db = writableDatabase
         val cv = ContentValues()
-        cv.put(COL_NAME, toDo.name)
+        cv.put(COL_NAME, grocery.name)
         val result = db.insert(TABLE_GROCERY, null, cv)
         return result != (-1).toLong()
     }
 
-    fun updateToDo(toDo: ToDo) {
+    fun updateGrocery(grocery: Grocery) {
         val db = writableDatabase
         val cv = ContentValues()
-        cv.put(COL_NAME, toDo.name)
+        cv.put(COL_NAME, grocery.name)
         db.update(
-            TABLE_GROCERY,cv,"$COL_ID=?" , arrayOf(toDo.id
+            TABLE_GROCERY,cv,"$COL_ID=?" , arrayOf(grocery.id
             .toString()))
     }
 
-    fun deleteToDo(todoId: Long){
+    fun deleteGrocery(groceryId: Long){
         val db = writableDatabase
-        db.delete(TABLE_GROCERY_ITEM,"$COL_TODO_ID=?", arrayOf(todoId.toString()))
-        db.delete(TABLE_GROCERY,"$COL_ID=?", arrayOf(todoId.toString()))
+        db.delete(TABLE_GROCERY_ITEM,"$COL_GROCERY_ID=?", arrayOf(groceryId.toString()))
+        db.delete(TABLE_GROCERY,"$COL_ID=?", arrayOf(groceryId.toString()))
     }
 
-    fun updateToDoItemCompletedStatus(todoId: Long,isCompleted: Boolean){
+    fun updateGroceryItemCompletedStatus(groceryId: Long, isCompleted: Boolean){
         val db = writableDatabase
-        val queryResult = db.rawQuery("SELECT * FROM $TABLE_GROCERY_ITEM WHERE $COL_TODO_ID=$todoId", null)
+        val queryResult = db.rawQuery("SELECT * FROM $TABLE_GROCERY_ITEM WHERE $COL_GROCERY_ID=$groceryId", null)
 
         if (queryResult.moveToFirst()) {
             do {
-                val item = ToDoItem()
+                val item = GroceryItem()
                 item.id = queryResult.getLong(queryResult.getColumnIndex(COL_ID))
-                item.toDoId = queryResult.getLong(queryResult.getColumnIndex(COL_TODO_ID))
+                item.groceryId = queryResult.getLong(queryResult.getColumnIndex(COL_GROCERY_ID))
                 item.itemName = queryResult.getString(queryResult.getColumnIndex(COL_ITEM_NAME))
                 item.isCompleted = isCompleted
-                updateToDoItem(item)
+                updateGroceryItem(item)
             } while (queryResult.moveToNext())
         }
 
         queryResult.close()
     }
 
-    fun getToDos(): MutableList<ToDo> {
-        val result: MutableList<ToDo> = ArrayList()
+    fun getGrocery(): MutableList<Grocery> {
+        val result: MutableList<Grocery> = ArrayList()
         val db = readableDatabase
         val queryResult = db.rawQuery("SELECT * from $TABLE_GROCERY", null)
         if (queryResult.moveToFirst()) {
             do {
-                val todo = ToDo()
-                todo.id = queryResult.getLong(queryResult.getColumnIndex(COL_ID))
-                todo.name = queryResult.getString(queryResult.getColumnIndex(COL_NAME))
-                result.add(todo)
+                val grocery = Grocery()
+                grocery.id = queryResult.getLong(queryResult.getColumnIndex(COL_ID))
+                grocery.name = queryResult.getString(queryResult.getColumnIndex(COL_NAME))
+                result.add(grocery)
             } while (queryResult.moveToNext())
         }
         queryResult.close()
         return result
     }
 
-    fun addToDoItem(item: ToDoItem): Boolean {
+    fun addGroceryItem(item: GroceryItem): Boolean {
         val db = writableDatabase
         val cv = ContentValues()
         cv.put(COL_ITEM_NAME, item.itemName)
-        cv.put(COL_TODO_ID, item.toDoId)
+        cv.put(COL_GROCERY_ID, item.groceryId)
         cv.put(COL_IS_COMPLETED, item.isCompleted)
 
         val result = db.insert(TABLE_GROCERY_ITEM, null, cv)
         return result != (-1).toLong()
     }
 
-    fun updateToDoItem(item: ToDoItem) {
+    fun updateGroceryItem(item: GroceryItem) {
         val db = writableDatabase
         val cv = ContentValues()
         cv.put(COL_ITEM_NAME, item.itemName)
-        cv.put(COL_TODO_ID, item.toDoId)
+        cv.put(COL_GROCERY_ID, item.groceryId)
         cv.put(COL_IS_COMPLETED, item.isCompleted)
 
         db.update(TABLE_GROCERY_ITEM, cv, "$COL_ID=?", arrayOf(item.id.toString()))
     }
 
-    fun deleteToDoItem(itemId : Long){
+    fun deleteGroceryItem(itemId : Long){
         val db = writableDatabase
         db.delete(TABLE_GROCERY_ITEM,"$COL_ID=?" , arrayOf(itemId.toString()))
     }
 
-    fun getToDoItems(todoId: Long): MutableList<ToDoItem> {
-        val result: MutableList<ToDoItem> = ArrayList()
+    fun getGroceryItems(groceryId: Long): MutableList<GroceryItem> {
+        val result: MutableList<GroceryItem> = ArrayList()
 
         val db = readableDatabase
-        val queryResult = db.rawQuery("SELECT * FROM $TABLE_GROCERY_ITEM WHERE $COL_TODO_ID=$todoId", null)
+        val queryResult = db.rawQuery("SELECT * FROM $TABLE_GROCERY_ITEM WHERE $COL_GROCERY_ID=$groceryId", null)
 
         if (queryResult.moveToFirst()) {
             do {
-                val item = ToDoItem()
+                val item = GroceryItem()
                 item.id = queryResult.getLong(queryResult.getColumnIndex(COL_ID))
-                item.toDoId = queryResult.getLong(queryResult.getColumnIndex(COL_TODO_ID))
+                item.groceryId = queryResult.getLong(queryResult.getColumnIndex(COL_GROCERY_ID))
                 item.itemName = queryResult.getString(queryResult.getColumnIndex(COL_ITEM_NAME))
                 item.isCompleted = queryResult.getInt(queryResult.getColumnIndex(COL_IS_COMPLETED)) == 1
                 result.add(item)
